@@ -107,10 +107,7 @@ def startProc(cmd):
 
     # need to pass a string to Popen and shell=True to get stdout from docker container
     print(" ".join(cmd))
-    returnProc = Popen(" ".join(cmd), stdout=PIPE,shell=True, preexec_fn=os.setsid)
-    if returnProc  []:
-        returnProc = None
-    return returnProc
+    return Popen(" ".join(cmd), stdout=PIPE,shell=True, preexec_fn=os.setsid)
 
 
 def finishProc(process):
