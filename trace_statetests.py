@@ -478,7 +478,7 @@ SKIP_LIST = [
     'stackLimitPush32_1024',
     'stackLimitPush32_1025', # big trace, onsensus failure
     'stackLimitGas_1023',
-    'stackLimitGas_1024', # consensus bug
+    'stackLimitGas_1024',
     'stackLimitGas_1025'
 ]
 
