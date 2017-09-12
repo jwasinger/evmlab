@@ -107,7 +107,10 @@ def startProc(cmd):
 
     # need to pass a string to Popen and shell=True to get stdout from docker container
     print(" ".join(cmd))
-    return Popen(" ".join(cmd), stdout=PIPE,shell=True, preexec_fn=os.setsid)
+    returnProc = Popen(" ".join(cmd), stdout=PIPE,shell=True, preexec_fn=os.setsid)
+    if returnProc  []:
+        returnProc = None
+    return returnProc
 
 
 def finishProc(process):
@@ -213,10 +216,8 @@ class PyVM(VM):
                     try:
                         yield(json.loads(line[json_index:]))
                     except Exception as e:
-                        logger.info("Exception parsing python output:")
-                        logger.info(e)
-                        logger.info("problematic line:")
-                        logger.info(line)
+                        print("Exception parsing json:", e)
+                        print("problematic line:", line)
                         yield({})
 
         canon_steps = []
