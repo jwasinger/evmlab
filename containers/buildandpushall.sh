@@ -15,3 +15,5 @@ docker_repo="holiman"
 #(cd std-parity && docker build --no-cache . -t $docker_repo/std-parityvm)
 # build python docker image
 #(cd pyethereum && docker build --no-cache . -t $docker_repo/std-pyethvm)
+# build ethereumjs docker images
+#(cd ethereumjs-vm && docker build --no-cache . -t jwasinger/ethereumjs-vm)

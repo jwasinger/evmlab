@@ -46,6 +46,7 @@ def parse_config():
     cfg['CPP_DOCKER_NAME'] = config[uname]['cpp_docker_name']
     cfg['PARITY_DOCKER_NAME'] = config[uname]['parity_docker_name']
     cfg['GETH_DOCKER_NAME'] = config[uname]['geth_docker_name']
+    cfg['JS_DOCKER_NAME'] = config[uname]['js_docker_name']
     cfg['PRESTATE_TMP_FILE']=config[uname]['prestate_tmp_file']
     cfg['SINGLE_TEST_TMP_FILE']=config[uname]['single_test_tmp_file']
     cfg['LOGS_PATH'] = config[uname]['logs_path']
@@ -354,7 +355,19 @@ def startGeth(test_file):
 
     return VMUtils.startProc(geth_docker_cmd)
 
+def startJs(test_name, tx_dgv):
+    [d,g,v] = tx_dgv
+    logger.info("running state test in EthereumJS.")
 
+    js_mount_tests = cfg['TESTS_PATH'] + ":" + "/mounted_tests"
+    js_docker_cmd = ["docker", "run", "--rm", "-t", "-v", js_mount_tests, cfg["JS_DOCKER_NAME"], "-s", "--file", test_name+".json"]
+    js_docker_cmd.extend(['--jsontrace'])
+    js_docker_cmd.extend(["-d", str(d), "-g", str(g), "-v", str(v)])
+    js_docker_cmd.extend(['--testspath', '"/mounted_tests"'])
+
+
+    logger.info("js_cmd: %s " % " ".join(js_docker_cmd))
+    return VMUtils.startProc(js_docker_cmd)
 
 def startPython(test_file, test_tx):
     logger.info("running state test in pyeth.")
@@ -398,6 +411,8 @@ def finishGeth(process):
 def finishPython(process):
     return finishProc("python", process, VMUtils.PyVM.canonicalized)
 
+def finishJs(process):
+    return finishProc("javascript", process, VMUtils.JsVM.canonicalized)
 
 def startClient(client, single_test_tmp_file, prestate_tmp_file, tx, test_subfolder, test_name, tx_dgv, test_case):
     """ Starts the client process, returns a tuple
@@ -413,6 +428,8 @@ def startClient(client, single_test_tmp_file, prestate_tmp_file, tx, test_subfol
         return (startPython(prestate_tmp_file, tx), finishPython)
     if client == 'PAR':
         return (startParity(single_test_tmp_file), finishParity)
+    if client == 'JS':
+        return (startJs(test_name, tx_dgv), finishJs)
 
     logger.error("ERROR! client not supported:", client)
     return []
