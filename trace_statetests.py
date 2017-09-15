@@ -355,15 +355,16 @@ def startGeth(test_file):
 
     return VMUtils.startProc(geth_docker_cmd)
 
-def startJs(test_name, tx_dgv):
+def startJs(single_test_tmp_file, tx_dgv):
     [d,g,v] = tx_dgv
     logger.info("running state test in EthereumJS.")
 
-    js_mount_tests = cfg['TESTS_PATH'] + ":" + "/mounted_tests"
-    js_docker_cmd = ["docker", "run", "--rm", "-t", "-v", js_mount_tests, cfg["JS_DOCKER_NAME"], "-s", "--file", test_name+".json"]
+    testfile_path = os.path.abspath(single_test_tmp_file)
+    mount_testfile = testfile_path + ":" + "/ethereum/"+single_test_tmp_file
+    js_docker_cmd = ["docker", "run", "--rm", "-t", "-v", mount_testfile, cfg["JS_DOCKER_NAME"], "-s", "--stateTestSource", single_test_tmp_file]
     js_docker_cmd.extend(['--jsontrace'])
-    js_docker_cmd.extend(["-d", str(d), "-g", str(g), "-v", str(v)])
-    js_docker_cmd.extend(['--testspath', '"/mounted_tests"'])
+    js_docker_cmd.extend(['--fork', cfg['FORK_CONFIG']])
+    #js_docker_cmd.extend(['--testspath', '"/mounted_tests"'])
 
 
     logger.info("js_cmd: %s " % " ".join(js_docker_cmd))
@@ -429,7 +430,7 @@ def startClient(client, single_test_tmp_file, prestate_tmp_file, tx, test_subfol
     if client == 'PAR':
         return (startParity(single_test_tmp_file), finishParity)
     if client == 'JS':
-        return (startJs(test_name, tx_dgv), finishJs)
+        return (startJs(single_test_tmp_file, tx_dgv), finishJs)
 
     logger.error("ERROR! client not supported:", client)
     return []
