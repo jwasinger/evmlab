@@ -355,16 +355,14 @@ def startGeth(test_file):
 
     return VMUtils.startProc(geth_docker_cmd)
 
-def startJs(single_test_tmp_file, tx_dgv):
-    [d,g,v] = tx_dgv
+def startJs(single_test_tmp_file):
     logger.info("running state test in EthereumJS.")
 
     testfile_path = os.path.abspath(single_test_tmp_file)
     mount_testfile = testfile_path + ":" + "/ethereum/"+single_test_tmp_file
-    js_docker_cmd = ["docker", "run", "--rm", "-t", "-v", mount_testfile, cfg["JS_DOCKER_NAME"], "-s", "--stateTestSource", single_test_tmp_file]
+    js_docker_cmd = ["docker", "run", "--rm", "-t", "-v", mount_testfile, cfg["JS_DOCKER_NAME"], "-s", "--customStateTest", single_test_tmp_file]
     js_docker_cmd.extend(['--jsontrace'])
     js_docker_cmd.extend(['--fork', cfg['FORK_CONFIG']])
-    #js_docker_cmd.extend(['--testspath', '"/mounted_tests"'])
 
 
     logger.info("js_cmd: %s " % " ".join(js_docker_cmd))
@@ -430,7 +428,8 @@ def startClient(client, single_test_tmp_file, prestate_tmp_file, tx, test_subfol
     if client == 'PAR':
         return (startParity(single_test_tmp_file), finishParity)
     if client == 'JS':
-        return (startJs(single_test_tmp_file, tx_dgv), finishJs)
+        import pdb; pdb.set_trace()
+        return (startJs(single_test_tmp_file), finishJs)
 
     logger.error("ERROR! client not supported:", client)
     return []
@@ -496,7 +495,7 @@ SKIP_LIST = [
     'stackLimitPush32_1024',
     'stackLimitPush32_1025', # big trace, onsensus failure
     'stackLimitGas_1023',
-    'stackLimitGas_1024',
+    'stackLimitGas_1024', # consensus bug
     'stackLimitGas_1025'
 ]
 
@@ -629,6 +628,8 @@ def perform_test(f, test_name, test_number = 0):
                 procs.append( (startPython(prestate_tmpfile, tx), finishPython) )
             if client_name == 'PAR':
                 procs.append( (startParity(test_tmpfile), finishParity) )
+            elif client_name == 'JS':
+                procs.append( (startJs(test_tmpfile), finishJs) )
 
 #            procs.append(startClient(client_name ,test_tmpfile, prestate_tmpfile, tx, test_subfolder, test_name, tx_dgv, test_case))
 

@@ -147,17 +147,20 @@ class CppVM(VM):
 
         steps = []
         for x in output:
-            if x[0:2] == "[{":
-                try:
-                    steps = json.loads(x)
-                except Exception as e:
-                    logger.info('Exception parsing cpp json:')
-                    logger.info(e)
-                    logger.info('problematic line:')
-                    logger.info(x)
-                    steps = []
+            try:
+                if x[0:2] == "[{":
+                        steps = json.loads(x)
 
-            logger.debug(output)
+                if x[0:2] == "{\"":
+                    step = json.loads(x)
+                    if 'stateRoot' in step.keys():
+                        steps.append(step)
+
+            except Exception as e:
+                logger.info('Exception parsing cpp json:')
+                logger.info(e)
+                logger.info('problematic line:')
+                logger.info(x)
 
         canon_steps = []
 
@@ -221,7 +224,7 @@ class PyVM(VM):
                     try:
                         yield(json.loads(line[json_index:]))
                     except Exception as e:
-                        logger.info("Exception parsing json:")
+                        logger.info("Exception parsing python output:")
                         logger.info(e)
                         logger.info("problematic line:")
                         logger.info(line)
