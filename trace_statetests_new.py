@@ -531,10 +531,11 @@ def startParity(test):
     return execInDocker("parity", cmd)
 
 def startHera(test):
-    cmd = [ "/build/test/testeth", 
+    cmd = [ "/home/builder/build/test/testeth", 
             "-t","GeneralStateTests","--",
+            "--singlenet", "Byzantium",
             "--vm", "hera",
-            "--evmc", "evm2wasm.js=true", "--evmc", "fallback=false",
+            "--evmc", "evm2wasm.js=true", "--evmc", "evm2wasm.js-trace=true", "--evmc", "fallback=false",
             "--singletest", "/testfiles/%s" % os.path.basename(test.tmpfile), test.name,
             ]
     return execInDocker("hera", cmd, stderr=False)
