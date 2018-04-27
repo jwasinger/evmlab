@@ -7,8 +7,10 @@ RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && \
 
 USER builder
 
+RUN echo "hello world"
+
 RUN rm -rf evm2wasm && \
-          git clone --recursive https://github.com/ewasm/evm2wasm -b remove-debug-statements --single-branch && \
+          git clone --recursive https://github.com/ewasm/evm2wasm --single-branch -b trace-fix && \
           cd evm2wasm && \
           npm install && \
           cd tools/wabt && \

@@ -22,9 +22,9 @@ USER builder
 WORKDIR /home/builder
 
 #RUN git clone --recursive https://github.com/ethereum/cpp-ethereum --branch develop --single-branch --depth 1
-RUN git clone https://github.com/ethereum/cpp-ethereum --single-branch
+RUN git clone https://github.com/ethereum/cpp-ethereum -b ewasm-json-trace --single-branch
 RUN cd cpp-ethereum && git submodule update --init --recursive
-RUN cd cpp-ethereum/hera && git fetch origin && git checkout master
+RUN cd cpp-ethereum/hera && git remote add jwasinger https://github.com/jwasinger/hera && git fetch jwasinger && git checkout jwasinger/meter-evm2wasm-op && git submodule update --recursive
 
 RUN cd cpp-ethereum && echo "{}"                                         \
           | jq ".+ {\"repo\":\"$(git config --get remote.origin.url)\"}" \
